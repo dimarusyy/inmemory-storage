@@ -1,0 +1,37 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Clang-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "clang_cl_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_VERBOSE_MAKEFILE",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
+          "name": "VCPKG_VERBOSE",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
+          "name": "VCPKG_TARGET_TRIPLET",
+          "value": "x64-windows",
+          "type": "STRING"
+        },
+        {
+          "name": "VCPKG_APPLOCAL_DEPS",
+          "value": "true",
+          "type": "BOOL"
+        }
+      ]
+    }
+  ]
+}

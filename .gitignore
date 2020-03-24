@@ -348,3 +348,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/out/build/x64-Clang-Debug/.cmake/api/v1
+/out/build/x64-Clang-Debug/CMakeFiles
+/out/build/x64-Clang-Debug
