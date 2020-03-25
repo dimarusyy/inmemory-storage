@@ -11,13 +11,12 @@ Currently, build is only available on Windows with VS2019.
 Please, perform the following steps:
 * install vcpkg and boost+doctest dependencies
 * open folder as cmake-project in VS2019
-* just build
+* build project
 
 If you want to build on source directory, perform the following steps:
-* mkdir build; cd build
-* cmake .. -DCMAKE_TOOLCHAIN_FILE="D:\dev\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows
-  *(note, the command above produces x64 build)*
-* cmake --build .
+* *mkdir build; cd build*
+* run cmake, e.g. : *cmake .. -DCMAKE_TOOLCHAIN_FILE="D:\dev\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows*
+* *cmake --build .*
 
 # TODO
 * add reflection (magic_get and/or boost.fusion)
