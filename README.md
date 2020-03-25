@@ -4,7 +4,7 @@ Current implementation uses simple **Todo** struct declared in *include/config.h
 
 # Dependencies
 The project depends on boost and doctest.
-The easies way to get dependencies is to use vcpkg and install boost and doctest ports
+The easies way to get dependencies is to use **vcpkg** and install **boost** and **doctest** ports
 
 # Build
 Currently, build is only available on Windows with VS2019.
