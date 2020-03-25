@@ -1,105 +1,112 @@
 #pragma once
 
-#include "error.h"
-#include "orm_conrainer.h"
-
-#include <boost/lambda/lambda.hpp>
+#include "orm_base_storage.h"
+#include "cppcoro/generator.hpp"
 
 #include <optional>
-#include <tuple>
-#include <utility>
+#include <vector>
 
 namespace orm
 {
-    struct orm_storage_base_t
+    struct orm_storage_t final
     {
-        // aliases
-        using value_type = orm::build::value_type;
-        using storage_type = orm::build::storage_type;
+        using iterator = orm_base_storage_t::iterator;
 
-        orm_storage_base_t() = default;
-
-        orm_storage_base_t(storage_type store)
-            : _store(std::move(store))
+        orm_storage_t()
+            : _storage(std::make_shared<orm_base_storage_t>())
         {
         }
 
-        using index_type = decltype(value_type::id);
+        orm_storage_t(std::shared_ptr<orm_base_storage_t> storage, std::shared_ptr<orm_base_storage_t> parent = nullptr)
+            : _storage(std::move(storage)), _parent(parent)
+        {
+        }
 
         template <typename...Args>
         error_t insert(int64_t id, Args...args)
         {
-            value_type obj{ id, args... };
-            return _store.insert(obj).second ? error_t::success : error_t::duplicate;
+            return _storage->insert(id, args...);
         }
 
         error_t erase(int64_t id)
         {
-            return _store.erase(id) != 0 ? error_t::success : error_t::not_found;
+            return _storage->erase(id);
         }
 
-        auto get(index_type id)
+        auto get(orm_base_storage_t::index_type id)
         {
-            auto& index = _store.template get<id_tag>();
-            return std::make_tuple(index.find(id), index.end());
-        }
-
-        template <typename Tag, typename IndexType>
-        auto query(const IndexType& value)
-        {
-            auto& index = _store.template get<Tag>();
-            return index.equal_range(value);
+            return _storage->get(id);
         }
 
         template <typename Tag, typename IndexType>
-        auto query_range(const IndexType& first,
-                         const IndexType& last)
+        cppcoro::generator<std::pair<iterator, iterator>> query(const IndexType& value)
         {
-            auto& index = _store.template get<Tag>();
-            return index.range(first <= boost::lambda::_1, boost::lambda::_1 <= last);
+            co_yield _storage->query<Tag>(value);
+            for (auto& s : _siblings)
+            {
+                auto child = s.lock();
+                if (child)
+                {
+                    co_yield child->query<Tag>(value);
+                }
+            }
+        }
+
+        template <typename Tag, typename IndexType>
+        cppcoro::generator<std::pair<iterator, iterator>> range_query(const IndexType& first,
+                                                                      const IndexType& last)
+        {
+            co_yield _storage->range_query<Tag>(first, last);
+            for (auto& s : _siblings)
+            {
+                auto child = s.lock();
+                if (child)
+                {
+                    co_yield child->range_query<Tag>(first, last);
+                }
+            }
         }
 
         template <typename...ModifyArgs>
-        auto update(index_type id, ModifyArgs...args)
+        auto update(orm_base_storage_t::index_type id, ModifyArgs...args)
         {
-            auto& index = _store.template get<id_tag>();
-            auto it = index.find(id);
-            if (it != index.end())
-            {
-                _store.modify(it, std::move(args)...);
-                return error_t::success;
-            }
-            return error_t::not_found;
+            return _storage->update(id, args...);
         }
 
         auto size()
         {
-            return _store.size();
+            return _storage->size();
         }
 
-    protected:
-        storage_type _store;
-    };
-
-
-    struct orm_storage_t final : orm_storage_base_t
-    {
-        using orm_storage_base_t::value_type;
-        using orm_storage_base_t::storage_type;
-        using orm_storage_base_t::orm_storage_base_t;
-
-        orm_storage_t(orm_storage_base_t::storage_type storage, orm_storage_t& parent)
-            : orm_storage_base_t(std::move(storage)), _parent(std::ref(parent))
+        error_t commit()
         {
+            // 1) should we merge based on timestamp ? merge strategy ?
+            // 2) should we consider children state before merging ?
+            auto parent_storage = _parent.lock();
+            if (!parent_storage)
+                return error_t::not_found;
+            return parent_storage->merge(*_storage);
         }
 
         orm_storage_t child()
         {
-            return orm_storage_t(orm_storage_base_t::_store, *this);
+            const auto& it = _siblings.insert(_siblings.end(), std::weak_ptr<orm_base_storage_t>());
+            
+            // make a copy of own storage
+            std::shared_ptr<orm_base_storage_t> new_storage(new orm_base_storage_t(_storage->storage()),
+                                                            [this, it](auto* ptr)
+                                                            {
+                                                                delete ptr;
+                                                                _siblings.erase(it);
+                                                            });
+            *it = new_storage;
+            return orm_storage_t{ new_storage, _storage};
         }
 
     private:
-        std::optional<std::reference_wrapper<orm_storage_t>> _parent;
-    };
+        std::shared_ptr<orm_base_storage_t> _storage;
 
+        std::weak_ptr<orm_base_storage_t> _parent;
+        std::list<std::weak_ptr<orm_base_storage_t>> _siblings;
+    };
 }

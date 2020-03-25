@@ -1,16 +1,16 @@
-#include "include/orm_storage.h"
+#include "include/orm_base_storage.h"
 #include <doctest/doctest.h>
 
 using namespace orm;
 
 TEST_CASE("create")
 {
-    REQUIRE_NOTHROW(orm_storage_t{});
+    REQUIRE_NOTHROW(orm_base_storage_t{});
 }
 
 TEST_CASE("insert")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     s.insert(0);
     s.insert(1, "some title1");
     s.insert(2, "some title2", "some description2");
@@ -21,7 +21,7 @@ TEST_CASE("insert")
 
 TEST_CASE("erase")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     s.insert(0);
     s.insert(1, "some title1");
     s.insert(2, "some title2", "some description2");
@@ -43,7 +43,7 @@ TEST_CASE("erase")
 
 TEST_CASE("get_non_existing")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     s.insert(1, "hello");
     auto rc = s.get(1);
 
@@ -56,14 +56,14 @@ TEST_CASE("get_non_existing")
 
 TEST_CASE("get_non_existing")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     auto rc = s.get(1);
     REQUIRE_EQ(std::get<0>(rc), std::get<1>(rc));
 }
 
 TEST_CASE("query")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     s.insert(1, "hello");
     s.insert(2, "hello1");
     s.insert(3, "hello2");
@@ -83,13 +83,13 @@ TEST_CASE("query")
 
 TEST_CASE("query_range")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     s.insert(1, "hello", "", 123.0);
     s.insert(2, "hello", "", 126.0);
     s.insert(3, "hello", "", 125.0);
     s.insert(4, "hello", "", 126.0);
 
-    auto rc = s.query_range<timestamp_tag>(123, 125);
+    auto rc = s.range_query<timestamp_tag>(123, 125);
 
     auto first = std::get<0>(rc);
     auto last = std::get<1>(rc);
@@ -102,7 +102,7 @@ TEST_CASE("query_range")
 
 TEST_CASE("update_title")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     s.insert(1, "hello", "", 123.0);
     s.insert(2, "hello", "", 126.0);
     s.insert(3, "hello", "", 125.0);
@@ -117,7 +117,7 @@ TEST_CASE("update_title")
 
 TEST_CASE("update_and rollback")
 {
-    orm_storage_t s{};
+    orm_base_storage_t s{};
     s.insert(1, "hello", "", 123.0);
     s.insert(2, "hello", "", 124.0);
     s.insert(3, "hello", "", 125.0);

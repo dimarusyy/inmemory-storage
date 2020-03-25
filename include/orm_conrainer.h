@@ -33,5 +33,8 @@ namespace orm
             INDEX_NON_UNIQUE(timestamp_tag, value_type, value_type::timestamp, &value_type::timestamp)
             >
         >;
+
+        using iterator = storage_type::iterator;
+        using const_iterator = storage_type::const_iterator;
     };
 }
