@@ -31,7 +31,8 @@ namespace orm
 
         error_t insert(const value_type& obj)
         {
-            return _storage.insert(obj).second ? error_t::success : error_t::duplicate;
+            auto rc = _storage.insert(obj).second ? error_t::success : error_t::duplicate;
+            return rc;
         }
 
         template <typename...Args>
@@ -60,8 +61,7 @@ namespace orm
         }
 
         template <typename Tag, typename IndexType>
-        auto range_query(const IndexType& first,
-                         const IndexType& last)
+        auto range_query(const IndexType& first, const IndexType& last)
         {
             auto& index = _storage.template get<Tag>();
             return index.range(first <= boost::lambda::_1, boost::lambda::_1 <= last);
@@ -85,8 +85,7 @@ namespace orm
             return _storage.size();
         }
 
-        template <MergeStrategy strategy = MergeStrategy::auto_merge>
-        error_t merge(const orm_base_storage_t& other_storage)
+        void merge(const orm_base_storage_t& other_storage, MergeStrategy strategy = MergeStrategy::auto_merge)
         {
             for (auto entry : other_storage.storage())
             {
@@ -97,13 +96,13 @@ namespace orm
                 {
                     // insert the new element
                     if(strategy != MergeStrategy::update_only)
-                        return insert(entry);
+                        insert(entry);
                 }
                 else
                 {
                     // replace element with the new one
                     if (strategy != MergeStrategy::insert_only)
-                        return _storage.replace(first, entry) ? error_t::success : error_t::failure;
+                        _storage.replace(first, entry) ? error_t::success : error_t::failure;
                 }
             }
         }
