@@ -5,21 +5,15 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(compiler)
 include(dependencies)
 
-add_executable (inmemory-storage 
+add_executable (${PROJECT_NAME} 
 	"inmemory-storage.cpp" 
 	"tests/orm_base_storage.tests.cpp" 
-	"tests/orm_storage.child.tests.cpp")
+	"tests/orm_storage.child.tests.cpp"
+	)
 
-target_include_directories(inmemory-storage  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(inmemory-storage  PRIVATE ${CMAKE_SOURCE_DIR}/3rdparty/cppcoro/include)
-#add_dependencies(${PROJECT_NAME} cppcoro)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(${PROJECT_NAME} cppcoro.lib)
+add_dependencies(${PROJECT_NAME} dependencies)
 
 #enable_testing()
 #include(tests)
-
-if(CMAKE_CL_64)
-	target_link_directories(inmemory-storage PRIVATE ${CMAKE_SOURCE_DIR}/3rdparty/cppcoro/build/windows_x64_msvc15_optimised/lib)
-else()
-	target_link_directories(inmemory-storage PRIVATE ${CMAKE_SOURCE_DIR}/3rdparty/cppcoro/build/windows_x86_msvc15_optimised/lib)
-endif()
-target_link_libraries(inmemory-storage cppcoro.lib)

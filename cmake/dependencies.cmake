@@ -8,24 +8,36 @@ else()
 	message(FATAL_ERROR "Could not find boost")
 endif()
 
-#include(ExternalProject)
-#find_package(Git REQUIRED)
+include(ExternalProject)
+find_package(Git REQUIRED)
 
-#ExternalProject_Add(install-cppcoro
-#	PREFIX ${CMAKE_SOURCE_DIR}/3rdparty/cppcoro-tmp
-#	SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/cppcoro
-#	GIT_REPOSITORY https://github.com/lewissbaker/cppcoro.git
-#	GIT_PROGRESS 1
-#	GIT_SUBMODULES_RECURSE 1
-#	GIT_TAG vs2019
-#	CONFIGURE_COMMAND ""
-#	BUILD_IN_SOURCE 1
-#	BUILD_COMMAND cake.bat
-#	INSTALL_COMMAND ""
-#	LOG_DOWNLOAD 1
-#)
+ExternalProject_Add(install-cppcoro
+	PREFIX ${CMAKE_SOURCE_DIR}/3rdparty/cppcoro-tmp
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/cppcoro
+	GIT_REPOSITORY https://github.com/lewissbaker/cppcoro.git
+	GIT_PROGRESS 1
+	GIT_SUBMODULES_RECURSE 1
+	GIT_TAG vs2019
+	CONFIGURE_COMMAND ""
+	BUILD_IN_SOURCE 1
+	BUILD_COMMAND cake.bat lib/build.cake
+	BUILD_ALWAYS 1
+	INSTALL_COMMAND ""
+	LOG_DOWNLOAD 1
+	LOG_BUILD 1
+	LOG_OUTPUT_ON_FAILURE 1
+)
 
-#ExternalProject_Get_Property(install-cppcoro SOURCE_DIR)
-#add_library(cppcoro INTERFACE)
-#target_include_directories(cppcoro INTERFACE ${SOURCE_DIR})
-#unset(SOURCE_DIR)
+add_custom_target(dependencies ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR} DEPENDS install-cppcoro)
+
+ExternalProject_Get_Property(install-cppcoro SOURCE_DIR)
+include_directories(${SOURCE_DIR}/include)
+if(MSVC)
+	if(CMAKE_CL_64)
+		link_directories(${SOURCE_DIR}/build/windows_x64_msvc15_optimised/lib)
+	else()
+		link_directories(${SOURCE_DIR}/build/windows_x86_msvc15_optimised/lib)
+	endif()
+else()
+endif()
+unset(SOURCE_DIR)
