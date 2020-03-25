@@ -1,14 +1,16 @@
 #include "include/orm_storage.h"
 #include <doctest/doctest.h>
 
+using namespace orm;
+
 TEST_CASE("create")
 {
-    REQUIRE_NOTHROW(orm_storage_t<Todo>{});
+    REQUIRE_NOTHROW(orm_storage_t{});
 }
 
 TEST_CASE("insert")
 {
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     s.insert(0);
     s.insert(1, "some title1");
     s.insert(2, "some title2", "some description2");
@@ -19,7 +21,7 @@ TEST_CASE("insert")
 
 TEST_CASE("erase")
 {
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     s.insert(0);
     s.insert(1, "some title1");
     s.insert(2, "some title2", "some description2");
@@ -41,7 +43,7 @@ TEST_CASE("erase")
 
 TEST_CASE("get_non_existing")
 {
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     s.insert(1, "hello");
     auto rc = s.get(1);
 
@@ -54,14 +56,14 @@ TEST_CASE("get_non_existing")
 
 TEST_CASE("get_non_existing")
 {
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     auto rc = s.get(1);
     REQUIRE_EQ(std::get<0>(rc), std::get<1>(rc));
 }
 
 TEST_CASE("query")
 {
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     s.insert(1, "hello");
     s.insert(2, "hello1");
     s.insert(3, "hello2");
@@ -81,7 +83,7 @@ TEST_CASE("query")
 
 TEST_CASE("query_range")
 {
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     s.insert(1, "hello", "", 123.0);
     s.insert(2, "hello", "", 126.0);
     s.insert(3, "hello", "", 125.0);
@@ -100,7 +102,7 @@ TEST_CASE("query_range")
 
 TEST_CASE("update_title")
 {
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     s.insert(1, "hello", "", 123.0);
     s.insert(2, "hello", "", 126.0);
     s.insert(3, "hello", "", 125.0);
@@ -113,28 +115,21 @@ TEST_CASE("update_title")
     REQUIRE_EQ(std::get<0>(s.get(2))->title, "hello updated");
 }
 
-TEST_CASE("child_create")
+TEST_CASE("update_and rollback")
 {
-    orm_storage_t<Todo> s{};
-    s.insert(1, "hello", "", 123.0);
-
-    auto child = s.child();
-    REQUIRE_EQ(std::get<0>(s.get(1))->timestamp, 123.0);
-    REQUIRE_EQ(std::get<0>(child.get(1))->timestamp, 123.0);
-}
-
-TEST_CASE("child_commit")
-{
-    orm_storage_t<Todo> s{};
+    orm_storage_t s{};
     s.insert(1, "hello", "", 123.0);
     s.insert(2, "hello", "", 124.0);
+    s.insert(3, "hello", "", 125.0);
+    s.insert(4, "hello", "", 126.0);
 
-    auto child = s.child();
-    child.update(1, [](auto& el)
-                 {
-                     el.timestamp = 125.0;
-                 });
-
-    REQUIRE_EQ(std::get<0>(s.get(1))->timestamp, 123.0);
-    REQUIRE_EQ(std::get<0>(child.get(1))->timestamp, 125.0);
+    s.update(2, [](auto& el)
+             {
+                 el.title = "hello new";
+             },
+             [](auto& el)
+             {
+                 el.title = "hello old";
+             });
+    REQUIRE_EQ(std::get<0>(s.get(2))->title, "hello new");
 }
