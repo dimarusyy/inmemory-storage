@@ -12,7 +12,7 @@ namespace orm
         update_only = 3  // update the existing entries only
     };
 
-    struct orm_base_storage_t
+    struct base_storage_t
     {
         // aliases
         using value_type = orm::build::value_type;
@@ -20,9 +20,9 @@ namespace orm
         using iterator = orm::build::iterator;
         using const_iterator = orm::build::const_iterator;
 
-        orm_base_storage_t() = default;
+        base_storage_t() = default;
 
-        orm_base_storage_t(storage_type store)
+        base_storage_t(storage_type store)
             : _storage(std::move(store))
         {
         }
@@ -47,21 +47,21 @@ namespace orm
             return _storage.erase(id) != 0 ? error_t::success : error_t::not_found;
         }
 
-        auto get(index_type id)
+        auto get(index_type id) const
         {
             auto& index = _storage.template get<id_tag>();
             return std::make_tuple(index.find(id), index.end());
         }
 
         template <typename Tag, typename IndexType>
-        auto query(const IndexType& value)
+        auto query(const IndexType& value) const
         {
             auto& index = _storage.template get<Tag>();
             return index.equal_range(value);
         }
 
         template <typename Tag, typename IndexType>
-        auto range_query(const IndexType& first, const IndexType& last)
+        auto range_query(const IndexType& first, const IndexType& last) const
         {
             auto& index = _storage.template get<Tag>();
             return index.range(first <= boost::lambda::_1, boost::lambda::_1 <= last);
@@ -80,12 +80,12 @@ namespace orm
             return error_t::not_found;
         }
 
-        auto size()
+        auto size() const
         {
             return _storage.size();
         }
 
-        void merge(const orm_base_storage_t& other_storage, MergeStrategy strategy = MergeStrategy::auto_merge)
+        void merge(const base_storage_t& other_storage, MergeStrategy strategy = MergeStrategy::auto_merge)
         {
             for (auto entry : other_storage.storage())
             {

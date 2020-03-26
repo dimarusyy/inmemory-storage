@@ -8,16 +8,16 @@
 
 namespace orm
 {
-    struct orm_storage_t final
+    struct storage_t final
     {
-        using storage_type = orm_base_storage_t::storage_type;
+        using storage_type = base_storage_t::storage_type;
 
-        orm_storage_t()
-            : _storage(std::make_shared<orm_base_storage_t>())
+        storage_t()
+            : _storage(std::make_shared<base_storage_t>())
         {
         }
 
-        orm_storage_t(std::shared_ptr<orm_base_storage_t> storage, std::shared_ptr<orm_base_storage_t> parent = nullptr)
+        storage_t(std::shared_ptr<base_storage_t> storage, std::shared_ptr<base_storage_t> parent = nullptr)
             : _storage(std::move(storage)), _parent(parent)
         {
         }
@@ -33,14 +33,14 @@ namespace orm
             return _storage->erase(id);
         }
 
-        auto get(orm_base_storage_t::index_type id)
+        auto get(base_storage_t::index_type id) const
         {
             return _storage->get(id);
         }
 
         template <typename Tag, typename IndexType,
             typename ReturnType = std::pair<typename storage_type::index<Tag>::type::iterator, typename storage_type::index<Tag>::type::iterator>>
-            cppcoro::generator<ReturnType> query(const IndexType& value)
+            cppcoro::generator<ReturnType> query(const IndexType& value) const
         {
             co_yield _storage->query<Tag>(value);
             for (auto& s : _siblings)
@@ -58,7 +58,7 @@ namespace orm
         template <typename Tag, typename IndexType,
             typename ReturnType = std::pair<typename storage_type::index<Tag>::type::iterator, typename storage_type::index<Tag>::type::iterator>>
             cppcoro::generator<ReturnType> range_query(const IndexType& first,
-                                                       const IndexType& last)
+                                                       const IndexType& last) const
         {
             co_yield _storage->range_query<Tag>(first, last);
             for (auto& s : _siblings)
@@ -72,7 +72,7 @@ namespace orm
         }
 
         template <typename...ModifyArgs>
-        auto update(orm_base_storage_t::index_type id, ModifyArgs...args)
+        auto update(base_storage_t::index_type id, ModifyArgs...args)
         {
             return _storage->update(id, args...);
         }
@@ -93,25 +93,25 @@ namespace orm
             return error_t::success;
         }
 
-        orm_storage_t child()
+        storage_t child()
         {
-            const auto& it = _siblings.insert(_siblings.end(), std::weak_ptr<orm_base_storage_t>());
+            const auto& it = _siblings.insert(_siblings.end(), std::weak_ptr<base_storage_t>());
 
             // make a copy of own storage
-            std::shared_ptr<orm_base_storage_t> new_storage(new orm_base_storage_t(_storage->storage()),
+            std::shared_ptr<base_storage_t> new_storage(new base_storage_t(_storage->storage()),
                                                             [this, it](auto* ptr)
                                                             {
                                                                 delete ptr;
                                                                 _siblings.erase(it);
                                                             });
             *it = new_storage;
-            return orm_storage_t{ new_storage, _storage };
+            return storage_t{ new_storage, _storage };
         }
 
     private:
-        std::shared_ptr<orm_base_storage_t> _storage;
+        std::shared_ptr<base_storage_t> _storage;
 
-        std::weak_ptr<orm_base_storage_t> _parent;
-        std::list<std::weak_ptr<orm_base_storage_t>> _siblings;
+        std::weak_ptr<base_storage_t> _parent;
+        std::list<std::weak_ptr<base_storage_t>> _siblings;
     };
 }

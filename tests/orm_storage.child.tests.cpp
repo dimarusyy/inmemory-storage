@@ -7,7 +7,7 @@ using namespace orm;
 
 TEST_CASE("child_create")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 123.0);
 
     auto child = s.child();
@@ -17,7 +17,7 @@ TEST_CASE("child_create")
 
 TEST_CASE("child_create_empty_size")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 123.0);
 
     auto child = s.child();
@@ -28,7 +28,7 @@ TEST_CASE("child_create_empty_size")
 
 TEST_CASE("child_create_erase_size")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 123.0);
 
     auto child = s.child();
@@ -40,7 +40,7 @@ TEST_CASE("child_create_erase_size")
 
 TEST_CASE("child_modify")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 123.0);
     s.insert(2, "hello", "", 124.0);
 
@@ -56,7 +56,7 @@ TEST_CASE("child_modify")
 
 TEST_CASE("child_commit_update_size")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 100.0);
     s.insert(2, "hello", "", 100.0);
 
@@ -74,7 +74,7 @@ TEST_CASE("child_commit_update_size")
 
 TEST_CASE("child_commit_update")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 100.0);
     s.insert(2, "hello", "", 100.0);
 
@@ -91,7 +91,7 @@ TEST_CASE("child_commit_update")
 
 TEST_CASE("child_commit_insert_size")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 100.0);
     s.insert(2, "hello", "", 100.0);
 
@@ -105,7 +105,7 @@ TEST_CASE("child_commit_insert_size")
 
 TEST_CASE("child_commit_insert")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 100.0);
     s.insert(2, "hello", "", 100.0);
 
@@ -122,7 +122,7 @@ TEST_CASE("child_commit_insert")
 
 TEST_CASE("range_query")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 100.0);
     s.insert(2, "hello", "", 200.0);
 
@@ -151,7 +151,7 @@ TEST_CASE("range_query")
 
 TEST_CASE("query")
 {
-    orm_storage_t s{};
+    storage_t s{};
     s.insert(1, "hello", "", 100.0);
     s.insert(2, "hello", "", 200.0);
 
