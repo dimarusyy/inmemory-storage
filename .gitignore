@@ -353,3 +353,4 @@ MigrationBackup/
 /out/build/x64-Clang-Debug
 /out/build/x64-Debug
 /3rdparty/cppcoro-tmp
+/3rdparty
