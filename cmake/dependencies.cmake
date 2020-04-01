@@ -28,19 +28,19 @@ ExternalProject_Add(install-cppcoro
 	LOG_OUTPUT_ON_FAILURE 1
 )
 
-ExternalProject_Add(install-magic_get
-	PREFIX ${CMAKE_SOURCE_DIR}/3rdparty/magic_get-tmp
-	SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/magic_get
-	GIT_REPOSITORY https://github.com/apolukhin/magic_get.git
-	GIT_PROGRESS 1
-	CONFIGURE_COMMAND ""
-	BUILD_COMMAND ""
-	INSTALL_COMMAND ""
-	LOG_DOWNLOAD 1
-	LOG_OUTPUT_ON_FAILURE 1
-)
+#ExternalProject_Add(install-magic_get
+#	PREFIX ${CMAKE_SOURCE_DIR}/3rdparty/magic_get-tmp
+#	SOURCE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/magic_get
+#	GIT_REPOSITORY https://github.com/apolukhin/magic_get.git
+#	GIT_PROGRESS 1
+#	CONFIGURE_COMMAND ""
+#	BUILD_COMMAND ""
+#	INSTALL_COMMAND ""
+#	LOG_DOWNLOAD 1
+#	LOG_OUTPUT_ON_FAILURE 1
+#)
 
-add_custom_target(dependencies ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR} DEPENDS install-cppcoro install-magic_get)
+add_custom_target(dependencies ${CMAKE_COMMAND} ${CMAKE_SOURCE_DIR} DEPENDS install-cppcoro)
 
 ExternalProject_Get_Property(install-cppcoro SOURCE_DIR)
 include_directories(${SOURCE_DIR}/include)
@@ -54,6 +54,6 @@ else()
 endif()
 unset(SOURCE_DIR)
 
-ExternalProject_Get_Property(install-magic_get SOURCE_DIR)
-include_directories(${SOURCE_DIR}/include)
-unset(SOURCE_DIR)
+#ExternalProject_Get_Property(install-magic_get SOURCE_DIR)
+#include_directories(${SOURCE_DIR}/include)
+#unset(SOURCE_DIR)

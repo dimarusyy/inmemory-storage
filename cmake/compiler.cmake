@@ -4,5 +4,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (MSVC)
     add_compile_options(/await)
+    #add_compile_options(/P)
 else()
 endif()

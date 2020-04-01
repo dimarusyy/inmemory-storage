@@ -15,10 +15,10 @@ namespace orm
     struct base_storage_t
     {
         // aliases
-        using value_type = orm::build::value_type;
-        using storage_type = orm::build::storage_type;
-        using iterator = orm::build::iterator;
-        using const_iterator = orm::build::const_iterator;
+        using value_type = orm::value_type;
+        using storage_type = orm::storage_type;
+        using iterator = orm::iterator;
+        using const_iterator = orm::const_iterator;
 
         base_storage_t() = default;
 

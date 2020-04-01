@@ -10,16 +10,3 @@ struct Todo
     double timestamp;
 };
 
-struct id_tag
-{
-};
-struct title_tag
-{
-};
-struct description_tag
-{
-};
-struct timestamp_tag
-{
-};
-
