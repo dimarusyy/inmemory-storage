@@ -5,7 +5,7 @@
 #define ORM_TAG _tag
 
 #define INDEX_UNIQUE(tag_name,type_name,field_id,ptr_id) \
-    boost::multi_index::ordered_unique<\
+    boost::multi_index::hashed_unique<\
         boost::multi_index::tag<tag_name>, boost::multi_index::member<type_name, decltype(field_id), ptr_id>\
     >
 
